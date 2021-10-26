@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <list>
+#include <vector>
 
 
 
@@ -18,8 +18,9 @@ class Note
 
     Note* nextNote = nullptr;
 
-    Note(float speed = 5){
+    Note(float speed = 5, int side = 0 /*GAUCHE = 0, DROITE = 1*/){
         this->speed = speed;
+        (side==0) ? this->pos_x = 12 : this->pos_x=400;
     }
 
     void update(){
@@ -31,15 +32,7 @@ class Note
         this->nextNote = nextNote;
     }
     
-    
-    
-
 };
-
-
-
-
-
 
 int main(){
 
@@ -52,46 +45,18 @@ int main(){
     }
 
     //ALED
-    Note note = Note();
 
-    note.pos_x = 12;
-    note.pos_y = 0;
+    std::vector<Note> allActiveNotes;
+    allActiveNotes.push_back({3,0});
+    allActiveNotes.push_back({3,1});
 
-    Note note2 = Note();
 
-    note2.pos_x = 400;
-    note2.pos_y = 0;
+    //ALED
 
-    Note note3 = Note();
 
-    note3.pos_x = 400;
-    note3.pos_y = 0;
-
-    Note note4 = Note();
-    note4.pos_x = 12;
-    note4.pos_y = -100;
-
-    note.setNextNote(&note4);
-    note2.setNextNote(&note3);
-
-    sf::CircleShape shape(50);
-    sf::CircleShape shape2(50);
-    sf::CircleShape shape3(50);
-    sf::CircleShape shape4(50);
-
-    Note* tabNotesGauche[10] = {0};
-    tabNotesGauche[0] = &note;
-
-    Note* tabNotesDroite[10] = {0};
-    tabNotesDroite[0] = &note2;
-
-    sf::CircleShape* tabShapesG[10];
-    tabShapesG[0] = &shape;
-    tabShapesG[1] = &shape4;
-
-    sf::CircleShape* tabShapesD[10];
-    tabShapesD[0] = &shape2;
-    tabShapesD[1] = &shape3;
+    std::vector<sf::CircleShape> allActiveShapes;
+    allActiveShapes.push_back(sf::CircleShape(50));
+    allActiveShapes.push_back(sf::CircleShape(50));
 
 
     //Création des formes (censées représenter des boutons lol)
@@ -108,7 +73,7 @@ int main(){
     droite.setPosition(400,400);
 
 
-    float bpm = 200;
+    float bpm = 200; 
     float crotchet = 60/bpm; //The duration of a beat
     sf::Time duration = music.getDuration(); // Song duration
     sf::Time songposition = music.getPlayingOffset(); //Actual pos in the song
@@ -124,6 +89,9 @@ int main(){
     // On lance la musique au départ puis on déclare qu'elle son statut (playing)
     music.play();
     sf::SoundSource::Status status = sf::SoundSource::Status::Playing;
+
+    
+    std::cout << allActiveShapes.size() << std::endl;
 
 
     // Boucle du jeu
@@ -171,15 +139,17 @@ int main(){
 
 
 
-                        for (int i = 0; i<1;i++){
-                            Note* actualNoteG = tabNotesGauche[i];
-                            if (actualNoteG->pos_y+10>390 && actualNoteG->pos_y-10<410){
+                        for (int i = 0; i<allActiveNotes.size();i++){
+
+                            if (allActiveNotes[i].pos_x!=12) {continue;}
+
+                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
                                 std::cout << "300 GAUCHE" << std::endl;
                             }
-                            else if (actualNoteG->pos_y+30>370 && actualNoteG->pos_y-30<430){
+                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
                                 std::cout << "100 GAUCHE" << std::endl;
                             }
-                            else if (actualNoteG->pos_y+50>350 && actualNoteG->pos_y-50<450){
+                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
                                 std::cout << "50 GAUCHE" << std::endl;
                             }
                             else {
@@ -191,20 +161,21 @@ int main(){
                     if (sf::Keyboard::Key::L == evnt.key.code){
                         droite.setFillColor(sf::Color(0,0,130));
 
-                        for (int i = 0; i<1;i++){
-                            Note* actualNote = tabNotesDroite[i];
-                            if (actualNote->pos_y+10>390 && actualNote->pos_y-10<410){
+                        for (int i = 0; i<allActiveNotes.size();i++){
+
+                            if (allActiveNotes[i].pos_x!=400) {continue;}
+
+                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
                                 std::cout << "300 DROITE" << std::endl;
-                                
                             }
-                            else if (actualNote->pos_y+30>370 && actualNote->pos_y-30<430){
+                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
                                 std::cout << "100 DROITE" << std::endl;
                             }
-                            else if (actualNote->pos_y+50>350 && actualNote->pos_y-50<450){
+                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
                                 std::cout << "50 DROITE" << std::endl;
                             }
                             else {
-                                std::cout << "miss DROITE" << std::endl;
+                                std::cout << "what DROITE" << std::endl;
                             }
                         }
                             
@@ -248,50 +219,18 @@ int main(){
             B -=crotchet*0.1;
         }
 
-
-
-
         window.clear(sf::Color(R,G,B)); // On dessine tout
 
         window.draw(gauche);
         window.draw(droite);
 
-        Note* noteG = tabNotesGauche[0];
-        sf::CircleShape* ptrShapeG;
+        for (int i = 0; i<allActiveShapes.size(); i++){
+            allActiveNotes[i].update();
+            allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
+            window.draw(allActiveShapes[i]);
 
-        Note* noteD = tabNotesDroite[0];
-        sf::CircleShape* ptrShapeD;
-
-        int j = 0;
-
-        do{
-            ptrShapeG = tabShapesG[j];
-             sf::CircleShape shapeG = *ptrShapeG;
-
-             noteG->update();
-
-             shapeG.setPosition(noteG->pos_x, noteG->pos_y);
-             window.draw(shapeG);
-             noteG = noteG->nextNote;
-             j++;
-             ptrShapeG = tabShapesG[j];
         }
-        while (noteG->nextNote!=nullptr);
 
-        j = 0;
-
-        do{
-            ptrShapeD = tabShapesD[j];
-            sf::CircleShape shapeD = *ptrShapeD;
-
-            noteD->update();
-            shapeD.setPosition(noteD->pos_x, noteD->pos_y);
-            window.draw(shapeD);
-            noteD = noteD->nextNote;
-            j++;
-            ptrShapeD = tabShapesD[j];
-        }
-        while (noteD->nextNote!=nullptr);
 
         window.display();
     }
