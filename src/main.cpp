@@ -26,7 +26,7 @@ class Note
 
     Note* nextNote = nullptr;
 
-    Note(float speed = 30, float y = 0  ,int side = 0 /*Numéro de piste*/){
+    Note(float speed = 200, float y = 0  ,int side = 0 /*Numéro de piste*/){
         this->speed = speed;
         this->pos_y = y;
         (side==0) ? this->pos_x = 12 : this->pos_x=400;
@@ -42,6 +42,13 @@ class Note
     }
     
 };
+
+void addNote(int piste, std::vector<Note> &Notes, std::vector<sf::CircleShape> &Shapes){
+
+    Note note(300,0, piste);
+    Notes.push_back(note);
+    Shapes.push_back(sf::CircleShape(50));
+}
 
 int main(){
 
@@ -69,16 +76,9 @@ int main(){
     //ALED
 
     std::vector<Note> allActiveNotes;
-    allActiveNotes.push_back({100,0,0});
-    allActiveNotes.push_back({100,-50,1});
-    allActiveNotes.push_back({100,-100,1});
-    allActiveNotes.push_back({100,-30,0});
-
     std::vector<sf::CircleShape> allActiveShapes;
-    allActiveShapes.push_back(sf::CircleShape(50));
-    allActiveShapes.push_back(sf::CircleShape(50));
-    allActiveShapes.push_back(sf::CircleShape(50));
-    allActiveShapes.push_back(sf::CircleShape(50));
+
+    addNote(1, allActiveNotes, allActiveShapes);
 
 
     //Création des formes (censées représenter des boutons lol)
@@ -202,7 +202,6 @@ int main(){
 
                             if (allActiveNotes[i].pos_x!=400) {continue;}
 
-
                             if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
                                 hitsound.play();
                                 std::cout << "300 DROITE" << std::endl;
@@ -249,8 +248,10 @@ int main(){
         songposition = music.getPlayingOffset(); //Actual pos in the song
         float m_seconds = songposition.asMilliseconds(); // Explicite
         timeBeforeNextBeat = m_seconds + offset - (crotchet * beatNumber * 1000); //Same
+        int piste = 0;
 
         if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
+            addNote(piste, allActiveNotes, allActiveShapes);
             beatNumber ++;
             timeBeforeNextBeat = 0;
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
@@ -274,6 +275,14 @@ int main(){
         for (int i = 0; i<(int)allActiveShapes.size() && i<(int)allActiveNotes.size(); i++){
             
             allActiveNotes[i].update(deltaTime);
+
+            if (allActiveNotes[i].pos_y>HEIGHT+50) {
+                allActiveNotes.erase(allActiveNotes.begin() + i);
+                allActiveShapes.erase(allActiveShapes.begin() + i);
+                i--;
+                continue;
+            }
+
             allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
             window.draw(allActiveShapes[i]);
 
