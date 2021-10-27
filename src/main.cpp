@@ -8,6 +8,14 @@
 #define WIDTH 512
 #define HEIGHT 512
 
+
+/* TODO :
+/* - Une fonction qui génère note / shapes;
+/* - Trouver un moyen de changer la speed et que ca reste en rythme;
+/* - Lire les positions from files;
+/* - Créer un petit menu de sélection;
+*/
+
 class Note
 {
 
@@ -18,14 +26,15 @@ class Note
 
     Note* nextNote = nullptr;
 
-    Note(float speed = 5, int side = 0 /*GAUCHE = 0, DROITE = 1*/){
+    Note(float speed = 30, float y = 0  ,int side = 0 /*Numéro de piste*/){
         this->speed = speed;
+        this->pos_y = y;
         (side==0) ? this->pos_x = 12 : this->pos_x=400;
     }
 
-    void update(){
+    void update(float deltaTime){
         //std::cout << this->pos_y << std::endl;
-        this->pos_y += this->speed * 0.01;
+        this->pos_y += this->speed * deltaTime;
     }
 
     void setNextNote(Note* nextNote){
@@ -37,6 +46,8 @@ class Note
 int main(){
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Prototype", sf::Style::Titlebar | sf::Style::Close);
+    sf::Clock deltaClock;
+    float deltaTime;
 
     //Loading de la musique + gestion erreur
     sf::Music music;
@@ -44,17 +55,28 @@ int main(){
         std::cout << "ERROR: Loading Song " << std::endl;
     }
 
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromFile("audio/hitsound.wav")){
+        return -1;
+    }
+
+    sf::Sound hitsound;
+    hitsound.setBuffer(buffer);
+
+
+    window.setFramerateLimit(240);
+
     //ALED
 
     std::vector<Note> allActiveNotes;
-    allActiveNotes.push_back({3,0});
-    allActiveNotes.push_back({3,1});
-
-
-    //ALED
-
+    allActiveNotes.push_back({100,0,0});
+    allActiveNotes.push_back({100,-50,1});
+    allActiveNotes.push_back({100,-100,1});
+    allActiveNotes.push_back({100,-30,0});
 
     std::vector<sf::CircleShape> allActiveShapes;
+    allActiveShapes.push_back(sf::CircleShape(50));
+    allActiveShapes.push_back(sf::CircleShape(50));
     allActiveShapes.push_back(sf::CircleShape(50));
     allActiveShapes.push_back(sf::CircleShape(50));
 
@@ -97,7 +119,10 @@ int main(){
     // Boucle du jeu
     while (window.isOpen())
     {
+
+        deltaTime = deltaClock.restart().asSeconds();
         sf::Event evnt;
+
         while (window.pollEvent(evnt))
         {
 
@@ -144,39 +169,61 @@ int main(){
                             if (allActiveNotes[i].pos_x!=12) {continue;}
 
                             if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
                                 std::cout << "300 GAUCHE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
                                 std::cout << "100 GAUCHE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
                                 std::cout << "50 GAUCHE" << std::endl;
                             }
                             else {
                                 std::cout << "what GAUCHE" << std::endl;
                             }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
                         }
+
                     }
 
                     if (sf::Keyboard::Key::L == evnt.key.code){
+
                         droite.setFillColor(sf::Color(0,0,130));
 
                         for (int i = 0; i<allActiveNotes.size();i++){
 
+
                             if (allActiveNotes[i].pos_x!=400) {continue;}
 
+
                             if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
                                 std::cout << "300 DROITE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
                                 std::cout << "100 DROITE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
                                 std::cout << "50 DROITE" << std::endl;
                             }
                             else {
                                 std::cout << "what DROITE" << std::endl;
                             }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
                         }
                             
                     }
@@ -214,9 +261,9 @@ int main(){
         }
 
         if (R>100){ // Fondu après le beat
-            R -=crotchet*0.1; 
-            G -=crotchet*0.1; 
-            B -=crotchet*0.1;
+            R -=crotchet; 
+            G -=crotchet; 
+            B -=crotchet;
         }
 
         window.clear(sf::Color(R,G,B)); // On dessine tout
@@ -224,8 +271,9 @@ int main(){
         window.draw(gauche);
         window.draw(droite);
 
-        for (int i = 0; i<allActiveShapes.size(); i++){
-            allActiveNotes[i].update();
+        for (int i = 0; i<(int)allActiveShapes.size() && i<(int)allActiveNotes.size(); i++){
+            
+            allActiveNotes[i].update(deltaTime);
             allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
             window.draw(allActiveShapes[i]);
 
