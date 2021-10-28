@@ -3,6 +3,10 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 
+#include "note.cpp"
+#include "note.h"
+#include "piste.h"
+
 
 
 #define WIDTH 512
@@ -16,39 +20,6 @@
 /* - Créer un petit menu de sélection;
 */
 
-class Note
-{
-
-    public:
-    float pos_x;
-    float pos_y;
-    float speed;
-
-    Note* nextNote = nullptr;
-
-    Note(float speed = 200, float y = 0  ,int side = 0 /*Numéro de piste*/){
-        this->speed = speed;
-        this->pos_y = y;
-        (side==0) ? this->pos_x = 12 : this->pos_x=400;
-    }
-
-    void update(float deltaTime){
-        //std::cout << this->pos_y << std::endl;
-        this->pos_y += this->speed * deltaTime;
-    }
-
-    void setNextNote(Note* nextNote){
-        this->nextNote = nextNote;
-    }
-    
-};
-
-void addNote(int piste, std::vector<Note> &Notes, std::vector<sf::CircleShape> &Shapes){
-
-    Note note(300,0, piste);
-    Notes.push_back(note);
-    Shapes.push_back(sf::CircleShape(50));
-}
 
 int main(){
 
@@ -78,22 +49,22 @@ int main(){
     std::vector<Note> allActiveNotes;
     std::vector<sf::CircleShape> allActiveShapes;
 
-    addNote(1, allActiveNotes, allActiveShapes);
-
+    std::vector<sf::CircleShape> allPiste; //Représente les pos_x
 
     //Création des formes (censées représenter des boutons lol)
-    sf::CircleShape gauche(50,50);
-    gauche.setFillColor(sf::Color(255,0,0));
-    gauche.setOutlineColor(sf::Color(100,0,0));
-    gauche.setOutlineThickness(-10);
-    gauche.setPosition(12,400);
+    // sf::CircleShape gauche(50,50);
+    // gauche.setFillColor(sf::Color(255,0,0));
+    // gauche.setOutlineColor(sf::Color(100,0,0));
+    // gauche.setOutlineThickness(-10);
+    // gauche.setPosition(12,400);
 
-    sf::CircleShape droite(50,50);
-    droite.setFillColor(sf::Color(0,0,255));
-    droite.setOutlineColor(sf::Color(0,0,100));
-    droite.setOutlineThickness(-10);
-    droite.setPosition(400,400);
+    // sf::CircleShape droite(50,50);
+    // droite.setFillColor(sf::Color(0,0,255));
+    // droite.setOutlineColor(sf::Color(0,0,100));
+    // droite.setOutlineThickness(-10);
+    // droite.setPosition(400,400);
 
+    addPistes(allPiste);
 
     float bpm = 200; 
     float crotchet = 60/bpm; //The duration of a beat
@@ -160,7 +131,13 @@ int main(){
 
                     /* Gestion des input des joueurs */
                     if (sf::Keyboard::Key::J == evnt.key.code){ 
-                        gauche.setFillColor(sf::Color(130,0,0));
+                        
+                        
+                        for (sf::CircleShape& piste : allPiste){
+                            if (piste.getPosition().x < WIDTH / 2){
+                                piste.setFillColor(sf::Color(130,0,0));
+                            }
+                        }
 
 
 
@@ -195,7 +172,11 @@ int main(){
 
                     if (sf::Keyboard::Key::L == evnt.key.code){
 
-                        droite.setFillColor(sf::Color(0,0,130));
+                        for (sf::CircleShape& piste : allPiste){
+                            if (piste.getPosition().x > WIDTH / 2){
+                                piste.setFillColor(sf::Color(0,0,130));
+                            }
+                        }
 
                         for (int i = 0; i<allActiveNotes.size();i++){
 
@@ -232,12 +213,22 @@ int main(){
                 case sf::Event::KeyReleased:
 
                     if (sf::Keyboard::Key::J == evnt.key.code){
-                        gauche.setFillColor(sf::Color(255,0,0));
+
+                        for (sf::CircleShape& piste : allPiste){
+                            if (piste.getPosition().x < WIDTH / 2){
+                                piste.setFillColor(sf::Color(255,0,0));
+                            }
+                        }
                         break;
                     }
 
                     if (sf::Keyboard::Key::L == evnt.key.code){
-                        droite.setFillColor(sf::Color(0,0,255));
+
+                        for (sf::CircleShape& piste : allPiste){
+                            if (piste.getPosition().x > WIDTH / 2){
+                                piste.setFillColor(sf::Color(0,0,255));
+                            }
+                        }
                         break;
                     }
                     break;
@@ -251,10 +242,10 @@ int main(){
         int piste = 0;
 
         if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
-            addNote(piste, allActiveNotes, allActiveShapes);
             beatNumber ++;
             timeBeforeNextBeat = 0;
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
+                addNote(piste, allActiveNotes, allActiveShapes);
                 R = 200;
                 G = 200;
                 B = 200;
@@ -269,8 +260,10 @@ int main(){
 
         window.clear(sf::Color(R,G,B)); // On dessine tout
 
-        window.draw(gauche);
-        window.draw(droite);
+        for (sf::CircleShape& piste : allPiste){
+            //std::cout << "Position x : "<< piste.getPosition().x <<std::endl;
+            window.draw(piste);
+        }
 
         for (int i = 0; i<(int)allActiveShapes.size() && i<(int)allActiveNotes.size(); i++){
             
