@@ -3,40 +3,25 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 
+#include "note.cpp"
+#include "note.h"
+#include "piste.h"
 
 
-#define WIDTH 512
-#define HEIGHT 512
 
-class Note
-{
+/* TODO :
+/* - Une fonction qui génère note / shapes;
+/* - Trouver un moyen de changer la speed et que ca reste en rythme;
+/* - Lire les positions from files;
+/* - Créer un petit menu de sélection;
+*/
 
-    public:
-    float pos_x;
-    float pos_y;
-    float speed;
-
-    Note* nextNote = nullptr;
-
-    Note(float speed = 5, int side = 0 /*GAUCHE = 0, DROITE = 1*/){
-        this->speed = speed;
-        (side==0) ? this->pos_x = 12 : this->pos_x=400;
-    }
-
-    void update(){
-        //std::cout << this->pos_y << std::endl;
-        this->pos_y += this->speed * 0.01;
-    }
-
-    void setNextNote(Note* nextNote){
-        this->nextNote = nextNote;
-    }
-    
-};
 
 int main(){
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Prototype", sf::Style::Titlebar | sf::Style::Close);
+    sf::Clock deltaClock;
+    float deltaTime;
 
     //Loading de la musique + gestion erreur
     sf::Music music;
@@ -44,34 +29,25 @@ int main(){
         std::cout << "ERROR: Loading Song " << std::endl;
     }
 
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromFile("audio/hitsound.wav")){
+        return -1;
+    }
+
+    sf::Sound hitsound;
+    hitsound.setBuffer(buffer);
+
+
+    window.setFramerateLimit(240);
+
     //ALED
 
     std::vector<Note> allActiveNotes;
-    allActiveNotes.push_back({3,0});
-    allActiveNotes.push_back({3,1});
-
-
-    //ALED
-
-
     std::vector<sf::CircleShape> allActiveShapes;
-    allActiveShapes.push_back(sf::CircleShape(50));
-    allActiveShapes.push_back(sf::CircleShape(50));
 
+    std::vector<sf::CircleShape> allPiste; //Représente les pos_x
 
-    //Création des formes (censées représenter des boutons lol)
-    sf::CircleShape gauche(50,50);
-    gauche.setFillColor(sf::Color(255,0,0));
-    gauche.setOutlineColor(sf::Color(100,0,0));
-    gauche.setOutlineThickness(-10);
-    gauche.setPosition(12,400);
-
-    sf::CircleShape droite(50,50);
-    droite.setFillColor(sf::Color(0,0,255));
-    droite.setOutlineColor(sf::Color(0,0,100));
-    droite.setOutlineThickness(-10);
-    droite.setPosition(400,400);
-
+    addPistes(allPiste);
 
     float bpm = 200; 
     float crotchet = 60/bpm; //The duration of a beat
@@ -97,7 +73,10 @@ int main(){
     // Boucle du jeu
     while (window.isOpen())
     {
+
+        deltaTime = deltaClock.restart().asSeconds();
         sf::Event evnt;
+
         while (window.pollEvent(evnt))
         {
 
@@ -134,66 +113,185 @@ int main(){
 
 
                     /* Gestion des input des joueurs */
-                    if (sf::Keyboard::Key::J == evnt.key.code){ 
-                        gauche.setFillColor(sf::Color(130,0,0));
+                    if (sf::Keyboard::Key::G == evnt.key.code){ 
+                        
+                        
+                        sf::CircleShape &piste = allPiste.at(0);
+                        piste.setFillColor(sf::Color(130,0,0));
 
 
 
                         for (int i = 0; i<allActiveNotes.size();i++){
 
-                            if (allActiveNotes[i].pos_x!=12) {continue;}
+                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
 
                             if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
                                 std::cout << "300 GAUCHE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
                                 std::cout << "100 GAUCHE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
                                 std::cout << "50 GAUCHE" << std::endl;
                             }
                             else {
                                 std::cout << "what GAUCHE" << std::endl;
                             }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
                         }
+
                     }
 
-                    if (sf::Keyboard::Key::L == evnt.key.code){
-                        droite.setFillColor(sf::Color(0,0,130));
+
+                    if (sf::Keyboard::Key::H == evnt.key.code){ 
+                        
+                        
+                        sf::CircleShape &piste = allPiste.at(1);
+                        piste.setFillColor(sf::Color(130,0,0));
+
+
 
                         for (int i = 0; i<allActiveNotes.size();i++){
 
-                            if (allActiveNotes[i].pos_x!=400) {continue;}
+                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
 
                             if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
+                                std::cout << "300 GAUCHE" << std::endl;
+                            }
+                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
+                                std::cout << "100 GAUCHE" << std::endl;
+                            }
+                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
+                                std::cout << "50 GAUCHE" << std::endl;
+                            }
+                            else {
+                                std::cout << "what GAUCHE" << std::endl;
+                            }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
+                        }
+
+                    }
+
+
+                    if (sf::Keyboard::Key::L == evnt.key.code){
+
+                        sf::CircleShape &piste = allPiste.at(2);
+                        piste.setFillColor(sf::Color(0,0,130));
+
+                        for (int i = 0; i<allActiveNotes.size();i++){
+
+
+                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
+
+                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
                                 std::cout << "300 DROITE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
                                 std::cout << "100 DROITE" << std::endl;
                             }
                             else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
                                 std::cout << "50 DROITE" << std::endl;
                             }
                             else {
                                 std::cout << "what DROITE" << std::endl;
                             }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
                         }
                             
                     }
+
+                    if (sf::Keyboard::Key::M == evnt.key.code){
+
+                        sf::CircleShape &piste = allPiste.at(3);
+                        piste.setFillColor(sf::Color(0,0,130));
+
+                        for (int i = 0; i<allActiveNotes.size();i++){
+
+
+                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
+
+                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
+                                hitsound.play();
+                                std::cout << "300 DROITE" << std::endl;
+                            }
+                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
+                                hitsound.play();
+                                std::cout << "100 DROITE" << std::endl;
+                            }
+                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
+                                hitsound.play();
+                                std::cout << "50 DROITE" << std::endl;
+                            }
+                            else {
+                                std::cout << "what DROITE" << std::endl;
+                            }
+
+                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
+                            allActiveNotes.erase(allActiveNotes.begin() + i);
+                            allActiveShapes.erase(allActiveShapes.begin() + i);
+                            i--;
+                            break;
+                        }
+                            
+                    }
+
                     break;
 
                 /* On release */
                 case sf::Event::KeyReleased:
 
-                    if (sf::Keyboard::Key::J == evnt.key.code){
-                        gauche.setFillColor(sf::Color(255,0,0));
+                    if (sf::Keyboard::Key::G == evnt.key.code){
+
+                        sf::CircleShape &piste = allPiste.at(0);
+                        piste.setFillColor(sf::Color(255,0,0));
+                        break;
+                    }
+
+                    if (sf::Keyboard::Key::H == evnt.key.code){
+
+                        sf::CircleShape &piste = allPiste.at(1);
+                        piste.setFillColor(sf::Color(255,0,0));
                         break;
                     }
 
                     if (sf::Keyboard::Key::L == evnt.key.code){
-                        droite.setFillColor(sf::Color(0,0,255));
+
+                        sf::CircleShape &piste = allPiste.at(2);
+                        piste.setFillColor(sf::Color(0,0,255));
                         break;
                     }
+
+                    if (sf::Keyboard::Key::M == evnt.key.code){
+
+                        sf::CircleShape &piste = allPiste.at(3);
+                        piste.setFillColor(sf::Color(0,0,255));
+                        break;
+                    }
+
                     break;
             }
         }
@@ -202,10 +300,17 @@ int main(){
         songposition = music.getPlayingOffset(); //Actual pos in the song
         float m_seconds = songposition.asMilliseconds(); // Explicite
         timeBeforeNextBeat = m_seconds + offset - (crotchet * beatNumber * 1000); //Same
+        int piste = 0;
 
         if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
             beatNumber ++;
             timeBeforeNextBeat = 0;
+
+            int index = rand() % 4;
+            std::cout << index << std::endl;
+            sf::CircleShape &test = allPiste.at(index);
+            addNote(test, allActiveNotes, allActiveShapes);
+
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
                 R = 200;
                 G = 200;
@@ -214,18 +319,29 @@ int main(){
         }
 
         if (R>100){ // Fondu après le beat
-            R -=crotchet*0.1; 
-            G -=crotchet*0.1; 
-            B -=crotchet*0.1;
+            R -=crotchet; 
+            G -=crotchet; 
+            B -=crotchet;
         }
 
         window.clear(sf::Color(R,G,B)); // On dessine tout
 
-        window.draw(gauche);
-        window.draw(droite);
+        for (sf::CircleShape& piste : allPiste){
+            //std::cout << "Position x : "<< piste.getPosition().x <<std::endl;
+            window.draw(piste);
+        }
 
-        for (int i = 0; i<allActiveShapes.size(); i++){
-            allActiveNotes[i].update();
+        for (int i = 0; i<(int)allActiveShapes.size() && i<(int)allActiveNotes.size(); i++){
+            
+            allActiveNotes[i].update(deltaTime);
+
+            if (allActiveNotes[i].pos_y>HEIGHT+50) {
+                allActiveNotes.erase(allActiveNotes.begin() + i);
+                allActiveShapes.erase(allActiveShapes.begin() + i);
+                i--;
+                continue;
+            }
+
             allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
             window.draw(allActiveShapes[i]);
 
