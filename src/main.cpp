@@ -3,19 +3,12 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 
-#include "note.cpp"
+
+#include "time.h"
 #include "note.h"
 #include "piste.h"
 #include "input.h"
 
-
-
-/* TODO :
-/* - Une fonction qui génère note / shapes;
-/* - Trouver un moyen de changer la speed et que ca reste en rythme;
-/* - Lire les positions from files;
-/* - Créer un petit menu de sélection;
-*/
 
 
 int main(){
@@ -45,7 +38,6 @@ int main(){
 
     std::vector<Note> allActiveNotes;
     std::vector<sf::CircleShape> allActiveShapes;
-
     std::vector<sf::CircleShape> allPiste; //Représente les pos_x
 
     addPistes(allPiste);
@@ -54,6 +46,7 @@ int main(){
     float crotchet = 60/bpm; //The duration of a beat
     sf::Time duration = music.getDuration(); // Song duration
     sf::Time songposition = music.getPlayingOffset(); //Actual pos in the song
+    float m_seconds = 0;
     float timeBeforeNextBeat = 0;
     int beatNumber = 0;
     float offset = 1788;
@@ -81,8 +74,8 @@ int main(){
     music.play();
     sf::SoundSource::Status status = sf::SoundSource::Status::Playing;
 
+
     
-    std::cout << allActiveShapes.size() << std::endl;
 
 
     // Boucle du jeu
@@ -164,6 +157,8 @@ int main(){
                             
                     }
 
+                    //std::cout << m_seconds << std::endl;
+
                     break;
 
                 /* On release */
@@ -203,20 +198,23 @@ int main(){
             
 
         songposition = music.getPlayingOffset(); //Actual pos in the song
-        float m_seconds = songposition.asMilliseconds(); // Explicite
+        m_seconds = songposition.asMilliseconds(); // Explicite
         timeBeforeNextBeat = m_seconds + offset - (crotchet * beatNumber * 1000); //Same
-        int piste = 0;
+
 
         if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
             beatNumber ++;
             timeBeforeNextBeat = 0;
 
-            int index = rand() % 4;
-            std::cout << index << std::endl;
+            int index = rand() % 4 ;
+            float randomtiming = beatNumber * crotchet * 1000 + offset ;
             sf::CircleShape &test = allPiste.at(index);
-            addNote(test, allActiveNotes, allActiveShapes);
+            addNote(test, allActiveNotes, allActiveShapes, randomtiming);
 
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
+
+        
+
                 R = 200;
                 G = 200;
                 B = 200;
@@ -235,20 +233,20 @@ int main(){
             window.draw(piste);
         }
 
-        for (int i = 0; i<(int)allActiveShapes.size() && i<(int)allActiveNotes.size(); i++){
+        for (int i = 0; i<(int)allActiveShapes.size(); i++){
             
-            allActiveNotes[i].update(deltaTime);
+            if (m_seconds > allActiveNotes[i].spawningTime){
+                allActiveNotes[i].update(deltaTime, m_seconds);
 
-            if (allActiveNotes[i].pos_y>HEIGHT+50) {
-                allActiveNotes.erase(allActiveNotes.begin() + i);
-                allActiveShapes.erase(allActiveShapes.begin() + i);
-                i--;
-                continue;
+                if (allActiveNotes[i].pos_y>HEIGHT+50) {
+                    allActiveNotes.erase(allActiveNotes.begin() + i);
+                    allActiveShapes.erase(allActiveShapes.begin() + i);
+                    i--;
+                    continue;
+                }
+                allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
+                window.draw(allActiveShapes[i]);
             }
-
-            allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
-            window.draw(allActiveShapes[i]);
-
         }
 
         window.draw(texte);

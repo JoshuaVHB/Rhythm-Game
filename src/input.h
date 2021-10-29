@@ -27,12 +27,11 @@ void checkHitNote(std::vector<Note> &Notes, sf::CircleShape piste, std::vector<s
             texte.setString("X");
         }
 
-        std::cout << "On remove la note : " << i << " de coords x : " << Notes[i].pos_x << std::endl;
+
         Notes.erase(Notes.begin() + i);
         Shapes.erase(Shapes.begin() + i);
         i--;
         break;
     }
-
 
 }

@@ -20,10 +20,6 @@ void addPistes( std::vector<sf::CircleShape> &allPistes){
     for (int i=0; i<4;i++){
         sf::CircleShape piste(radius);
 
-        std::cout << "Offset gauche" << offset_x_gauche << std::endl;
-        std::cout << "Radius : " << radius << std::endl;
-        std::cout << "(i * (WIDTH - offset_x_droite) / 4) : " << (i * (WIDTH - offset_x_droite) / 4) << std::endl;
-
         int pos_x = offset_x_gauche + radius + (i * (WIDTH - offset_x_droite) / 4) - offset_x_droite/2;
         int pos_y = HEIGHT - offset_y_bas - radius;
 
