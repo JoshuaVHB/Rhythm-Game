@@ -1,7 +1,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-void checkHitNote(std::vector<Note> &Notes, sf::CircleShape piste, std::vector<sf::CircleShape> &Shapes, sf::Text &texte, sf::Sound hitsound){
+void checkHitNote(std::vector<Note> &Notes, sf::CircleShape piste, std::vector<sf::CircleShape> &Shapes, sf::Text &texte, sf::Sound &hitsound){
 
     float p_x = piste.getPosition().x;
     float p_y = piste.getPosition().y;

@@ -119,45 +119,27 @@ int main(){
                         }
                     }
 
-
                     /* Gestion des input des joueurs */
-                    if (sf::Keyboard::Key::G == evnt.key.code){ 
-                        
-                        
+                    if (sf::Keyboard::Key::G == evnt.key.code){
                         sf::CircleShape &piste = allPiste.at(0);
                         piste.setFillColor(sf::Color(130,0,0));
                         checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-
                     }
-
-
                     if (sf::Keyboard::Key::H == evnt.key.code){ 
-                        
-                        
                         sf::CircleShape &piste = allPiste.at(1);
                         piste.setFillColor(sf::Color(130,0,0));
                         checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-
                     }
-
-
                     if (sf::Keyboard::Key::L == evnt.key.code){
-
                         sf::CircleShape &piste = allPiste.at(2);
                         piste.setFillColor(sf::Color(0,0,130));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-                            
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);    
                     }
-
                     if (sf::Keyboard::Key::M == evnt.key.code){
-
                         sf::CircleShape &piste = allPiste.at(3);
                         piste.setFillColor(sf::Color(0,0,130));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-                            
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);     
                     }
-
-                    //std::cout << m_seconds << std::endl;
 
                     break;
 
@@ -196,11 +178,9 @@ int main(){
             }
         }
             
-
         songposition = music.getPlayingOffset(); //Actual pos in the song
         m_seconds = songposition.asMilliseconds(); // Explicite
         timeBeforeNextBeat = m_seconds + offset - (crotchet * beatNumber * 1000); //Same
-
 
         if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
             beatNumber ++;
