@@ -9,3 +9,4 @@ void addNote(sf::CircleShape &piste, std::vector<Note> &Notes, std::vector<sf::C
     Notes.push_back(note);
     Shapes.push_back(sf::CircleShape(50));
 }
+

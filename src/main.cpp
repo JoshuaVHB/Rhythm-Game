@@ -6,6 +6,7 @@
 #include "note.cpp"
 #include "note.h"
 #include "piste.h"
+#include "input.h"
 
 
 
@@ -56,6 +57,20 @@ int main(){
     float timeBeforeNextBeat = 0;
     int beatNumber = 0;
     float offset = 1788;
+
+    sf::Font font;
+    if (!font.loadFromFile("src/arial.ttf"))
+    {
+    return -1;
+    }
+
+
+    sf::Text texte;
+    texte.setFont(font);
+    texte.setPosition(0,0);
+    texte.setCharacterSize(24);
+    texte.setFillColor(sf::Color::Red);
+    texte.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
     // Couleurs pour le background
     float R = 100.0f;
@@ -118,35 +133,7 @@ int main(){
                         
                         sf::CircleShape &piste = allPiste.at(0);
                         piste.setFillColor(sf::Color(130,0,0));
-
-
-
-                        for (int i = 0; i<allActiveNotes.size();i++){
-
-                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
-
-                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
-                                hitsound.play();
-                                std::cout << "300 GAUCHE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
-                                hitsound.play();
-                                std::cout << "100 GAUCHE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
-                                hitsound.play();
-                                std::cout << "50 GAUCHE" << std::endl;
-                            }
-                            else {
-                                std::cout << "what GAUCHE" << std::endl;
-                            }
-
-                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
-                            allActiveNotes.erase(allActiveNotes.begin() + i);
-                            allActiveShapes.erase(allActiveShapes.begin() + i);
-                            i--;
-                            break;
-                        }
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
 
                     }
 
@@ -156,35 +143,7 @@ int main(){
                         
                         sf::CircleShape &piste = allPiste.at(1);
                         piste.setFillColor(sf::Color(130,0,0));
-
-
-
-                        for (int i = 0; i<allActiveNotes.size();i++){
-
-                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
-
-                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
-                                hitsound.play();
-                                std::cout << "300 GAUCHE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
-                                hitsound.play();
-                                std::cout << "100 GAUCHE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
-                                hitsound.play();
-                                std::cout << "50 GAUCHE" << std::endl;
-                            }
-                            else {
-                                std::cout << "what GAUCHE" << std::endl;
-                            }
-
-                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
-                            allActiveNotes.erase(allActiveNotes.begin() + i);
-                            allActiveShapes.erase(allActiveShapes.begin() + i);
-                            i--;
-                            break;
-                        }
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
 
                     }
 
@@ -193,34 +152,7 @@ int main(){
 
                         sf::CircleShape &piste = allPiste.at(2);
                         piste.setFillColor(sf::Color(0,0,130));
-
-                        for (int i = 0; i<allActiveNotes.size();i++){
-
-
-                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
-
-                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
-                                hitsound.play();
-                                std::cout << "300 DROITE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
-                                hitsound.play();
-                                std::cout << "100 DROITE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
-                                hitsound.play();
-                                std::cout << "50 DROITE" << std::endl;
-                            }
-                            else {
-                                std::cout << "what DROITE" << std::endl;
-                            }
-
-                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
-                            allActiveNotes.erase(allActiveNotes.begin() + i);
-                            allActiveShapes.erase(allActiveShapes.begin() + i);
-                            i--;
-                            break;
-                        }
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
                             
                     }
 
@@ -228,34 +160,7 @@ int main(){
 
                         sf::CircleShape &piste = allPiste.at(3);
                         piste.setFillColor(sf::Color(0,0,130));
-
-                        for (int i = 0; i<allActiveNotes.size();i++){
-
-
-                            if (allActiveNotes[i].pos_x!=piste.getPosition().x) {continue;}
-
-                            if (allActiveNotes[i].pos_y+10>390 && allActiveNotes[i].pos_y-10<410){
-                                hitsound.play();
-                                std::cout << "300 DROITE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+30>370 && allActiveNotes[i].pos_y-30<430){
-                                hitsound.play();
-                                std::cout << "100 DROITE" << std::endl;
-                            }
-                            else if (allActiveNotes[i].pos_y+50>350 && allActiveNotes[i].pos_y-50<450){
-                                hitsound.play();
-                                std::cout << "50 DROITE" << std::endl;
-                            }
-                            else {
-                                std::cout << "what DROITE" << std::endl;
-                            }
-
-                            std::cout << "On remove la note : " << i << " de coords x : " << allActiveNotes[i].pos_x << std::endl;
-                            allActiveNotes.erase(allActiveNotes.begin() + i);
-                            allActiveShapes.erase(allActiveShapes.begin() + i);
-                            i--;
-                            break;
-                        }
+                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
                             
                     }
 
@@ -327,7 +232,6 @@ int main(){
         window.clear(sf::Color(R,G,B)); // On dessine tout
 
         for (sf::CircleShape& piste : allPiste){
-            //std::cout << "Position x : "<< piste.getPosition().x <<std::endl;
             window.draw(piste);
         }
 
@@ -347,7 +251,7 @@ int main(){
 
         }
 
-
+        window.draw(texte);
         window.display();
     }
     
