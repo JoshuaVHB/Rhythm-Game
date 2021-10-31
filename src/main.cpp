@@ -1,13 +1,16 @@
 #include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <vector>
+#include <string>
 
 
 #include "time.h"
 #include "note.h"
 #include "piste.h"
 #include "input.h"
+#include "file_reading.h"
 
 
 
@@ -42,14 +45,19 @@ int main(){
 
     addPistes(allPiste);
 
-    float bpm = 200; 
+    float bpm ; 
+    float offset ;
+
+    readFromFile(0, bpm, offset, allPiste ,allActiveNotes, allActiveShapes);
+
+
     float crotchet = 60/bpm; //The duration of a beat
     sf::Time duration = music.getDuration(); // Song duration
     sf::Time songposition = music.getPlayingOffset(); //Actual pos in the song
     float m_seconds = 0;
     float timeBeforeNextBeat = 0;
     int beatNumber = 0;
-    float offset = 1788;
+
 
     sf::Font font;
     if (!font.loadFromFile("src/arial.ttf"))
@@ -73,9 +81,6 @@ int main(){
     // On lance la musique au départ puis on déclare qu'elle son statut (playing)
     music.play();
     sf::SoundSource::Status status = sf::SoundSource::Status::Playing;
-
-
-    
 
 
     // Boucle du jeu
@@ -121,7 +126,8 @@ int main(){
 
                     /* Gestion des input des joueurs */
                     if (sf::Keyboard::Key::G == evnt.key.code){
-                        sf::CircleShape &piste = allPiste.at(0);
+                        sf::CircleShape &piste = allPiste.a
+                        t(0);
                         piste.setFillColor(sf::Color(130,0,0));
                         checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
                     }
@@ -141,6 +147,7 @@ int main(){
                         checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);     
                     }
 
+                    std::cout << "Actual time : " << m_seconds << std::endl;
                     break;
 
                 /* On release */
@@ -186,10 +193,10 @@ int main(){
             beatNumber ++;
             timeBeforeNextBeat = 0;
 
-            int index = rand() % 4 ;
-            float randomtiming = beatNumber * crotchet * 1000 + offset ;
-            sf::CircleShape &test = allPiste.at(index);
-            addNote(test, allActiveNotes, allActiveShapes, randomtiming);
+            // int index = rand() % 4 ;
+            // float randomtiming = beatNumber * crotchet * 1000 + offset ;
+            // sf::CircleShape &test = allPiste.at(index);
+            // addNote(test, allActiveNotes, allActiveShapes, randomtiming);
 
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
 

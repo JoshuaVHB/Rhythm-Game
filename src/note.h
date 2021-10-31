@@ -41,4 +41,4 @@ class Note
     }
 };
 
-void addNote(sf::CircleShape &piste, std::vector<Note> &Notes, std::vector<sf::CircleShape> &Shapes, float realTime);
+void addNote(int pisteID, std::vector<sf::CircleShape> &pistes, std::vector<Note> &Notes, std::vector<sf::CircleShape> &Shapes, float realTime);
