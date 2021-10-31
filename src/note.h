@@ -1,5 +1,6 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 #include "time.h"
@@ -25,7 +26,7 @@ class Note
         this->spawningTime = calculateSpawningTime(this->realTime);
     }
 
-    void update(float deltaTime, float songPosition){
+    void update(float deltaTime, float songPosition, sf::SoundSource::Status status){
         //std::cout << this->pos_y << std::endl;
         // y = h*(t - to / d)
         // h = distance spawn - centre de la note 
@@ -36,7 +37,7 @@ class Note
         float offset_y = HEIGHT * 0.9 - RADIUS;
         float h = offset_y - SPAWN_Y;
         float vel = deltaTime * 1000 *h / (this->realTime - this->spawningTime) ;
-        this->pos_y += vel;
+        (status==sf::SoundSource::Status::Playing) ? this->pos_y += vel :  this->pos_y =  this->pos_y;
 
     }
 };

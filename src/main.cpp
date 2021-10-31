@@ -20,14 +20,13 @@ int main(){
     sf::Clock deltaClock;
     float deltaTime;
 
-    //Loading de la musique + gestion erreur
+    int songID = 2;
+
     sf::Music music;
-    if (!music.openFromFile("audio/1.wav")){
-        std::cout << "ERROR: Loading Song " << std::endl;
-    }
+    findSong(songID, music);
 
     sf::SoundBuffer buffer;
-    if (!buffer.loadFromFile("audio/hitsound.wav")){
+    if (!buffer.loadFromFile("songs/audio/hitsound.wav")){
         return -1;
     }
 
@@ -48,7 +47,7 @@ int main(){
     float bpm ; 
     float offset ;
 
-    readFromFile(0, bpm, offset, allPiste ,allActiveNotes, allActiveShapes);
+    readFromFile(songID, bpm, offset, allPiste ,allActiveNotes, allActiveShapes);
 
 
     float crotchet = 60/bpm; //The duration of a beat
@@ -79,8 +78,7 @@ int main(){
     float B = 100.0f;
     
     // On lance la musique au départ puis on déclare qu'elle son statut (playing)
-    music.play();
-    sf::SoundSource::Status status = sf::SoundSource::Status::Playing;
+    sf::SoundSource::Status status = sf::SoundSource::Status::Stopped;
 
 
     // Boucle du jeu
@@ -118,7 +116,7 @@ int main(){
                             music.pause();
                             status = sf::SoundSource::Status::Paused;
                         } 
-                        else if (status == sf::SoundSource::Status::Paused){
+                        else {
                             music.play();
                             status = sf::SoundSource::Status::Playing;
                         }
@@ -126,8 +124,7 @@ int main(){
 
                     /* Gestion des input des joueurs */
                     if (sf::Keyboard::Key::G == evnt.key.code){
-                        sf::CircleShape &piste = allPiste.a
-                        t(0);
+                        sf::CircleShape &piste = allPiste.at(0);
                         piste.setFillColor(sf::Color(130,0,0));
                         checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
                     }
@@ -223,7 +220,7 @@ int main(){
         for (int i = 0; i<(int)allActiveShapes.size(); i++){
             
             if (m_seconds > allActiveNotes[i].spawningTime){
-                allActiveNotes[i].update(deltaTime, m_seconds);
+                allActiveNotes[i].update(deltaTime, m_seconds, status);
 
                 if (allActiveNotes[i].pos_y>HEIGHT+50) {
                     allActiveNotes.erase(allActiveNotes.begin() + i);

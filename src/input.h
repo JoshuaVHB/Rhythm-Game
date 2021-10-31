@@ -8,7 +8,7 @@ void checkHitNote(std::vector<Note> &Notes, sf::CircleShape piste, std::vector<s
 
     for (int i = 0; i<Notes.size();i++){
 
-        if (Notes[i].pos_x!=p_x) {continue;}
+        if (Notes[i].pos_x!=p_x || Notes[i].pos_y<300) {continue;}
 
         if (Notes[i].pos_y+10>p_y-10 && Notes[i].pos_y-10<p_y+10){
             hitsound.play();
