@@ -17,12 +17,16 @@
 int main(){
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Prototype", sf::Style::Titlebar | sf::Style::Close);
+    window.setFramerateLimit(240);
+
     sf::Clock deltaClock;
     float deltaTime;
 
     int songID = 2;
+    float bpm; 
+    float offset;
 
-    sf::Music music;
+    sf::Music music;  
     findSong(songID, music);
 
     sf::SoundBuffer buffer;
@@ -34,26 +38,19 @@ int main(){
     hitsound.setBuffer(buffer);
 
 
-    window.setFramerateLimit(240);
-
-    //ALED
-
     std::vector<Note> allActiveNotes;
     std::vector<sf::CircleShape> allActiveShapes;
     std::vector<sf::CircleShape> allPiste; //Représente les pos_x
 
     addPistes(allPiste);
 
-    float bpm ; 
-    float offset ;
-
     readFromFile(songID, bpm, offset, allPiste ,allActiveNotes, allActiveShapes);
 
 
     float crotchet = 60/bpm; //The duration of a beat
-    sf::Time duration = music.getDuration(); // Song duration
+    // sf::Time duration = music.getDuration(); Song duration
     sf::Time songposition = music.getPlayingOffset(); //Actual pos in the song
-    float m_seconds = 0;
+    float songposition_ms = 0;
     float timeBeforeNextBeat = 0;
     int beatNumber = 0;
 
@@ -63,7 +60,6 @@ int main(){
     {
     return -1;
     }
-
 
     sf::Text texte;
     texte.setFont(font);
@@ -77,9 +73,6 @@ int main(){
     float G = 100.0f;
     float B = 100.0f;
     
-    // On lance la musique au départ puis on déclare qu'elle son statut (playing)
-    sf::SoundSource::Status status = sf::SoundSource::Status::Stopped;
-
 
     // Boucle du jeu
     while (window.isOpen())
@@ -98,106 +91,26 @@ int main(){
                     break;
 
                 case sf::Event::KeyPressed:
-
-                    /* Gestion du volume avec les flèches */
-                    if (sf::Keyboard::Key::Up == evnt.key.code){
-                        int vol = music.getVolume();
-                        (vol <100) ? music.setVolume(vol+5) : music.setVolume(vol);
-                    }
-                    if ( sf::Keyboard::Key::Down == evnt.key.code){
-                        int vol = music.getVolume();
-                        (vol >0) ? music.setVolume(vol-5) : music.setVolume(vol) ;
-
-                    }
-
-                    /* Pause ou resume de la musique avec espace */
-                    if (sf::Keyboard::Key::Space == evnt.key.code){
-                        if (status == sf::SoundSource::Status::Playing){
-                            music.pause();
-                            status = sf::SoundSource::Status::Paused;
-                        } 
-                        else {
-                            music.play();
-                            status = sf::SoundSource::Status::Playing;
-                        }
-                    }
-
-                    /* Gestion des input des joueurs */
-                    if (sf::Keyboard::Key::G == evnt.key.code){
-                        sf::CircleShape &piste = allPiste.at(0);
-                        piste.setFillColor(sf::Color(130,0,0));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-                    }
-                    if (sf::Keyboard::Key::H == evnt.key.code){ 
-                        sf::CircleShape &piste = allPiste.at(1);
-                        piste.setFillColor(sf::Color(130,0,0));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);
-                    }
-                    if (sf::Keyboard::Key::L == evnt.key.code){
-                        sf::CircleShape &piste = allPiste.at(2);
-                        piste.setFillColor(sf::Color(0,0,130));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);    
-                    }
-                    if (sf::Keyboard::Key::M == evnt.key.code){
-                        sf::CircleShape &piste = allPiste.at(3);
-                        piste.setFillColor(sf::Color(0,0,130));
-                        checkHitNote(allActiveNotes, piste, allActiveShapes, texte,  hitsound);     
-                    }
-
-                    std::cout << "Actual time : " << m_seconds << std::endl;
+                    keyPressedCases(evnt, music, allActiveNotes,allPiste, allActiveShapes, texte, hitsound);
                     break;
 
-                /* On release */
                 case sf::Event::KeyReleased:
-
-                    if (sf::Keyboard::Key::G == evnt.key.code){
-
-                        sf::CircleShape &piste = allPiste.at(0);
-                        piste.setFillColor(sf::Color(255,0,0));
-                        break;
-                    }
-
-                    if (sf::Keyboard::Key::H == evnt.key.code){
-
-                        sf::CircleShape &piste = allPiste.at(1);
-                        piste.setFillColor(sf::Color(255,0,0));
-                        break;
-                    }
-
-                    if (sf::Keyboard::Key::L == evnt.key.code){
-
-                        sf::CircleShape &piste = allPiste.at(2);
-                        piste.setFillColor(sf::Color(0,0,255));
-                        break;
-                    }
-
-                    if (sf::Keyboard::Key::M == evnt.key.code){
-
-                        sf::CircleShape &piste = allPiste.at(3);
-                        piste.setFillColor(sf::Color(0,0,255));
-                        break;
-                    }
-
+                    keyReleasedCases(evnt, allPiste);
+                    break;
+                
+                default:
                     break;
             }
         }
             
         songposition = music.getPlayingOffset(); //Actual pos in the song
-        m_seconds = songposition.asMilliseconds(); // Explicite
-        timeBeforeNextBeat = m_seconds + offset - (crotchet * beatNumber * 1000); //Same
+        songposition_ms = songposition.asMilliseconds(); // Explicite
+        timeBeforeNextBeat = songposition_ms + offset - (crotchet * beatNumber * 1000); //Same
 
-        if (timeBeforeNextBeat > crotchet*1000 && m_seconds > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
+        if (timeBeforeNextBeat > crotchet*1000 && songposition_ms > offset){ // Metronome !! Commence à partir de Offset et se répète à chaque beat
             beatNumber ++;
             timeBeforeNextBeat = 0;
-
-            // int index = rand() % 4 ;
-            // float randomtiming = beatNumber * crotchet * 1000 + offset ;
-            // sf::CircleShape &test = allPiste.at(index);
-            // addNote(test, allActiveNotes, allActiveShapes, randomtiming);
-
             if (R<=100 && beatNumber%4==0){ //Effet de style (flashy bg) tous les 4 beats
-
-        
 
                 R = 200;
                 G = 200;
@@ -219,8 +132,8 @@ int main(){
 
         for (int i = 0; i<(int)allActiveShapes.size(); i++){
             
-            if (m_seconds > allActiveNotes[i].spawningTime){
-                allActiveNotes[i].update(deltaTime, m_seconds, status);
+            if (songposition_ms > allActiveNotes[i].spawningTime){
+                allActiveNotes[i].update(deltaTime, music.getStatus());
 
                 if (allActiveNotes[i].pos_y>HEIGHT+50) {
                     allActiveNotes.erase(allActiveNotes.begin() + i);

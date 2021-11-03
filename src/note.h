@@ -26,7 +26,7 @@ class Note
         this->spawningTime = calculateSpawningTime(this->realTime);
     }
 
-    void update(float deltaTime, float songPosition, sf::SoundSource::Status status){
+    void update(float deltaTime, sf::SoundSource::Status status){
         //std::cout << this->pos_y << std::endl;
         // y = h*(t - to / d)
         // h = distance spawn - centre de la note 

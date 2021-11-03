@@ -36,13 +36,10 @@ void readFromFile(int songID, float &bpm, float &offset,
 
     while(std::getline(myfile, tp) && tp != "")
     { 
-        int strSize = tp.size();
         int delimiter = tp.find_first_of(":");
 
         float realTime = atof(tp.substr(0,delimiter).c_str());
         int desiredPiste = atof(tp.substr(delimiter+1,1).c_str());
-
-        std::cout << "On a ajouté la note de tm = " << realTime << " Piste : " << desiredPiste << std::endl;
 
         addNote(desiredPiste, Pistes, Notes, Shapes, realTime);
         
