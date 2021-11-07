@@ -38,7 +38,7 @@ void readFromFile(int songID, float &bpm, float &offset,
     { 
         int delimiter = tp.find_first_of(":");
 
-        float realTime = atof(tp.substr(0,delimiter).c_str());
+        float realTime = atof(tp.substr(0,delimiter).c_str()) - offset;
         int desiredPiste = atof(tp.substr(delimiter+1,1).c_str());
 
         addNote(desiredPiste, Pistes, Notes, Shapes, realTime);

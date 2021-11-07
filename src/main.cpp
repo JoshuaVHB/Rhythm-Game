@@ -139,6 +139,7 @@ int main(){
                     allActiveNotes.erase(allActiveNotes.begin() + i);
                     allActiveShapes.erase(allActiveShapes.begin() + i);
                     i--;
+                    texte.setString("X");
                     continue;
                 }
                 allActiveShapes[i].setPosition(allActiveNotes[i].pos_x, allActiveNotes[i].pos_y);
